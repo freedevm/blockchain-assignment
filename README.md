@@ -10,7 +10,7 @@ Focus on quality over completeness. Submit what you have when time is up.
 
 If you have any questions, feel free to reach out — we're happy to clarify anything.
 
-## Time Consideration
+## Time Consideration     
 
 This assignment is scoped for 3–4 hours. If you hit that limit, submit what you have and use README.md to describe what you'd finish next.
 
