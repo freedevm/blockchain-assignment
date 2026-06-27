@@ -362,6 +362,7 @@ CREATE TABLE IF NOT EXISTS tasks (
   due_date        DATE,
   estimated_hours NUMERIC(10,2),
   remaining_hours NUMERIC(10,2),
+  tx_hash        TEXT,
   created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -373,6 +374,7 @@ CREATE TRIGGER trg_tasks_updated_at
 CREATE INDEX IF NOT EXISTS idx_tasks_project_id  ON tasks(project_id);
 CREATE INDEX IF NOT EXISTS idx_tasks_assigned_to ON tasks(assigned_to);
 CREATE INDEX IF NOT EXISTS idx_tasks_status      ON tasks(status);
+CREATE INDEX IF NOT EXISTS idx_tasks_tx_hash     ON tasks(tx_hash);
 
 ALTER TABLE tasks ENABLE ROW LEVEL SECURITY;
 

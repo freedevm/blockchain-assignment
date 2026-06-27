@@ -24,6 +24,8 @@ bun.lockb
 /dist-electron/
 /dist-app/
 backend/dist/
+artifacts/
+cache/
 
 # =============================================================
 # ENVIRONMENT & SECRETS  (never commit real credentials)

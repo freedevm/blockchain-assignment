@@ -32,9 +32,70 @@ cp .env.local.template .env.local
 # 4. Start a local Hardhat node (separate terminal)
 npx hardhat node
 
-# 5. Start the dev server
+# 5. Deploy the Worklo Points token to the local Hardhat node
+npm run blockchain:deploy
+# Copy the deployed contract address into WPT_TOKEN_ADDRESS in .env.local.
+# Use the first private key printed by `npx hardhat node` for WPT_OWNER_PRIVATE_KEY.
+
+# 6. Start the dev server
 npm run dev              # Next.js on http://localhost:3000
 ```
+
+## Environment Variables
+
+Supabase values are required in `.env.local`:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your_publishable_or_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+```
+
+Local blockchain reward values:
+
+```bash
+HARDHAT_RPC_URL=http://127.0.0.1:8545
+WPT_TOKEN_ADDRESS=0x...
+WPT_OWNER_PRIVATE_KEY=0x...
+WPT_REWARD_RECIPIENT_ADDRESS=
+WPT_REWARD_AMOUNT=10
+```
+
+`WPT_REWARD_RECIPIENT_ADDRESS` is optional. If it is empty, rewards are minted to the owner wallet used by `WPT_OWNER_PRIVATE_KEY`.
+
+## Reward Feature
+
+This implementation adds a local Worklo Points (`WPT`) reward flow for completed tasks:
+
+- `contracts/WorkloPoints.sol` is an OpenZeppelin ERC-20 contract.
+- Only the owner can call `mint(address to, uint256 amount)`.
+- `POST /api/tasks/[taskId]/reward` authenticates the user, fetches the task, checks project access, mints WPT with `ethers.js`, saves `tx_hash` to Supabase, and returns `{ txHash }`.
+- The project detail page shows `Reward WPT` next to completed tasks, `Rewarding...` while the transaction is pending, inline errors on failure, and a `Rewarded` badge with the transaction hash after success.
+
+## Testing The Reward Flow
+
+1. Run `supabase/schema.sql` in the Supabase SQL editor.
+2. Start the local chain with `npx hardhat node`.
+3. Deploy WPT with `npm run blockchain:deploy`.
+4. Copy the deployed contract address and owner private key into `.env.local`.
+5. Start the app with `npm run dev`.
+6. Open a project detail page and find a task with status `done` or `complete`.
+7. Click `Reward WPT`.
+8. Confirm the task shows a `Rewarded` badge and the `tasks.tx_hash` value is saved in Supabase.
+
+Useful checks:
+
+```bash
+npm run blockchain:compile
+npx eslint app/api/tasks/[taskId]/reward/route.ts app/projects/[projectId]/page.tsx hardhat.config.js scripts/deploy-wpt.js
+```
+
+## With More Time
+
+- Add contract tests for owner-only mint access.
+- Add API tests for auth, task status validation, and duplicate rewards.
+- Store a wallet address per user instead of using a configured local recipient.
+- Add a dedicated reward ledger table for stronger reward history and duplicate prevention.
 
 ## Task Overview
 
